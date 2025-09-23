@@ -1,4 +1,0 @@
-aiocoap
-pymysql
-sqlalchemy
-dotenv
