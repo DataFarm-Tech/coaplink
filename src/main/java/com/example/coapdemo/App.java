@@ -1,18 +1,17 @@
 package com.example.coapdemo;
 
 import org.eclipse.californium.core.CoapServer;
+import org.hibernate.SessionFactory;
 
 public class App {
     public static void main(String[] args) {
-        // Initialize Hibernate SessionFactory early
-        HibernateUtil.getSessionFactory();
+        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
+        BattRepository battRepository = new BattRepository(sessionFactory);
 
-        // Start CoAP server
         CoapServer server = new CoapServer();
-        server.add(new CoapInt()); // Your CBOR resource
+        server.add(new BattResource(battRepository));
         server.start();
 
         System.out.println("CoAP server is running...");
     }
 }
-

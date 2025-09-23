@@ -10,14 +10,6 @@ import java.time.LocalDateTime;
 public class HibernateUtil {
     private static final SessionFactory sessionFactory = buildSessionFactory();
 
-    public static void saveMessage(String message, LocalDateTime timestamp) {
-        try (Session session = getSessionFactory().openSession()) {
-            session.beginTransaction();
-            session.persist(new MessageEntity(message, timestamp));
-            session.getTransaction().commit();
-        }
-    }
-
     private static SessionFactory buildSessionFactory() {
         try {
             Configuration config = new Configuration();
@@ -52,7 +44,7 @@ public class HibernateUtil {
             config.setProperty("hibernate.cache.use_query_cache", "false");
 
             // Register entity
-            config.addAnnotatedClass(MessageEntity.class);
+            config.addAnnotatedClass(Batt.class);
 
             return config.buildSessionFactory(
                 new StandardServiceRegistryBuilder().applySettings(config.getProperties()).build()
