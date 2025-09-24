@@ -58,7 +58,7 @@ public class BattResource extends CoapResource {
                  * Data normalisation etc...
                  */
                 LocalDateTime timestamp = LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC);
-                Batt batt = new Batt(nodeId, battLvl, battHealth);
+                Batt batt = new Batt(nodeId, battLvl, battHealth, timestamp);
                 battRepository.saveBatt(batt);
             });
 

@@ -1,6 +1,7 @@
 package com.example.coapdemo;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "battery")
@@ -19,12 +20,16 @@ public class Batt {
     @Column(nullable = false)
     private int health;  // battery health percentage (0-100)
 
+    @Column(nullable = true)
+    private LocalDateTime timestamp;
+
     public Batt() {}
 
-    public Batt(String nodeId, int level, int health) {
+    public Batt(String nodeId, int level, int health, LocalDateTime timestamp) {
         this.nodeId = nodeId;
         this.level = level;
         this.health = health;
+        this.timestamp = timestamp; // Initialize with current time
     }
 
     // Getters and setters
@@ -46,9 +51,6 @@ public class Batt {
     }
 
     public void setLevel(int level) {
-        if (level < 0 || level > 100) {
-            throw new IllegalArgumentException("Level must be between 0 and 100");
-        }
         this.level = level;
     }
 
@@ -57,9 +59,14 @@ public class Batt {
     }
 
     public void setHealth(int health) {
-        if (health < 0 || health > 100) {
-            throw new IllegalArgumentException("Health must be between 0 and 100");
-        }
         this.health = health;
+    }
+
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
     }
 }
