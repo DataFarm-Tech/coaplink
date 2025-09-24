@@ -34,6 +34,7 @@ public class BattResource extends CoapResource {
             String nodeId = received.get("nodeId") != null ? received.get("nodeId").AsString() : null;
             Integer battLvl = received.get("level") != null ? received.get("level").AsInt32() : null;
             Integer battHealth = received.get("health") != null ? received.get("health").AsInt32() : null;
+            Integer respTime = received.get("latency") != null ? received.get("latency").AsInt32() : null;
 
             if (nodeId == null || nodeId.isEmpty()) {
                 exchange.respond(CoAP.ResponseCode.BAD_REQUEST, "nodeId cannot be null or empty");
@@ -50,6 +51,12 @@ public class BattResource extends CoapResource {
                 return;
             }
 
+            if (respTime == null)
+            {
+                exchange.respond(CoAP.ResponseCode.BAD_REQUEST, "Health must be between 0 and 100");
+                return;
+            }
+
             // Respond immediately so client is not blocked
             exchange.respond(CoAP.ResponseCode.CHANGED);
 
@@ -57,6 +64,7 @@ public class BattResource extends CoapResource {
                 /**
                  * Data normalisation etc...
                  */
+                System.out.println(respTime);
                 LocalDateTime timestamp = LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC);
                 Batt batt = new Batt(nodeId, battLvl, battHealth, timestamp);
                 battRepository.saveBatt(batt);
