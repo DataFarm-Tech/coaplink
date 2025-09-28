@@ -15,16 +15,15 @@ public class Capture {
     @Column(name = "timestamp", nullable = false)
     private LocalDateTime timestamp;
     
-    @Column(name = "resp_time", nullable = false)
+    @Column(name = "resp_time", nullable = true)
     private Double responseTime;
     
     // Default constructor
     public Capture() {}
     
     // Constructor with parameters
-    public Capture(LocalDateTime timestamp, Double responseTime) {
+    public Capture(LocalDateTime timestamp) {
         this.timestamp = timestamp;
-        this.responseTime = responseTime;
     }
     
     // Getters and setters

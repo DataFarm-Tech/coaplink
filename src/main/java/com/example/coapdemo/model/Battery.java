@@ -20,6 +20,11 @@ public class Battery {
     @Column(name = "bat_hlth", nullable = false)
     private Double batteryHealth;
     
+    // Foreign key relationship to Capture entity
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "capture_id", referencedColumnName = "capture_id", insertable = false, updatable = false)
+    private Capture capture;
+    
     // Default constructor
     public Battery() {}
     
@@ -62,5 +67,13 @@ public class Battery {
     
     public void setBatteryHealth(Double batteryHealth) {
         this.batteryHealth = batteryHealth;
+    }
+    
+    public Capture getCapture() {
+        return capture;
+    }
+    
+    public void setCapture(Capture capture) {
+        this.capture = capture;
     }
 }

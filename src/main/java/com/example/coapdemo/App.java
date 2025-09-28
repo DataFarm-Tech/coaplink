@@ -6,10 +6,11 @@ import org.hibernate.SessionFactory;
 public class App {
     public static void main(String[] args) {
         SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
-        BattRepository battRepository = new BattRepository(sessionFactory);
+        BatteryRepository batteryRepository = new BatteryRepository(sessionFactory);
+        CaptureRepository captureRepository = new CaptureRepository(sessionFactory);
 
         CoapServer server = new CoapServer();
-        server.add(new BattResource(battRepository));
+        server.add(new BatteryResource(batteryRepository, captureRepository));
         server.start();
 
         System.out.println("CoAP server is running...");

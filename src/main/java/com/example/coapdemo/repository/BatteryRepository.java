@@ -3,18 +3,18 @@ package com.example.coapdemo;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
-public class BattRepository {
+public class BatteryRepository {
 
     private final SessionFactory sessionFactory;
 
-    public BattRepository(SessionFactory sessionFactory) {
+    public BatteryRepository(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
     }
 
-    public void saveBatt(Batt batt) {
+    public void saveBattery(Battery battery) {
         try (Session session = sessionFactory.openSession()) {
             session.beginTransaction();
-            session.persist(batt);
+            session.persist(battery);
             session.getTransaction().commit();
         } catch (Exception e) {
             e.printStackTrace();
