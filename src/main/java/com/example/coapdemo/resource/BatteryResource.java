@@ -12,12 +12,13 @@ import java.util.concurrent.Executors;
 import com.upokecenter.cbor.CBORType;
 
 public class BatteryResource extends CoapResource {
+    
     private static final int THREAD_POOL_SIZE = 10;
     private static final ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
     private final BatteryRepository batteryRepository;
     private final CaptureRepository captureRepository;
     
-    public BatteryResource(BatteryRepository batteryRepository, CaptureRepository captureRepository) { // Fixed constructor name
+    public BatteryResource(BatteryRepository batteryRepository, CaptureRepository captureRepository) {
         super("battery");
         getAttributes().setTitle("Battery Resource");
         this.batteryRepository = batteryRepository;
@@ -28,8 +29,8 @@ public class BatteryResource extends CoapResource {
         Double battLvl;
         Double battHlth;
 
-        battLvl = batteryElement.get("level") != null ? batteryElement.get("level").AsDouble() : null;
-        battHlth = batteryElement.get("health") != null ? batteryElement.get("health").AsDouble() : null;
+        battLvl = batteryElement.get("bat_lvl") != null ? batteryElement.get("bat_lvl").AsDouble() : null;
+        battHlth = batteryElement.get("bat_hlth") != null ? batteryElement.get("bat_hlth").AsDouble() : null;
         
         if (battLvl == null) {
             System.err.println("Invalid battery level for battery " + index + ": null");
@@ -54,48 +55,40 @@ public class BatteryResource extends CoapResource {
         try {
             
             LocalDateTime timestamp = LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC);
-                    
-            // Create and save capture to get the auto-generated captureId
-            Capture capture = new Capture(timestamp); // You may need to calculate response time
-            Capture savedCapture = captureRepository.saveCapture(capture); // This should return the saved entity with ID
+
+            Capture capture = new Capture(timestamp);
+            Capture savedCapture = captureRepository.saveCapture(capture);
             Long captureId = savedCapture.getCaptureId();
-            
-            // Fixed constructor call to match your Battery entity
+
             Battery battery = new Battery(captureId, nodeId, battLvl, battHlth);
             batteryRepository.saveBattery(battery);
-            
-            System.out.println("Saved battery " + index + " for node " + nodeId + 
-                             " - Level: " + battLvl + "%, Health: " + battHlth + "%");
             return true;
         } catch (Exception e) {
             System.err.println("Error saving battery " + index + ": " + e.getMessage());
             return false;
         }
     }
-    
+
     @Override
     public void handlePOST(CoapExchange exchange) {
         byte[] payload = exchange.getRequestPayload();
         
         try {
             CBORObject received = CBORObject.DecodeFromBytes(payload);
-            
-            // Extract nodeId from the correct field name
-            String nodeId = received.get("nodeId") != null ? received.get("nodeId").AsString() : null;
-            System.out.println("Extracted nodeId: '" + nodeId + "'");
+
+            String nodeId = received.get("node_id") != null ? received.get("node_id").AsString() : null;
             if (nodeId == null || nodeId.isEmpty()) {
                 exchange.respond(CoAP.ResponseCode.BAD_REQUEST, "nodeId cannot be null or empty");
                 return;
             }
-            
-            // Extract batteries array
+
             CBORObject batteriesArray = received.get("batteries");
+            
             if (batteriesArray == null || !batteriesArray.getType().equals(CBORType.Array)) {
                 exchange.respond(CoAP.ResponseCode.BAD_REQUEST, "batteries array is required");
                 return;
             }
-            
-            // Respond immediately so client is not blocked
+
             exchange.respond(CoAP.ResponseCode.CHANGED);
             
             executor.submit(() -> { // Save asynchronously

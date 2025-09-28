@@ -1,35 +1,13 @@
-// package com.example.coapdemo;
-
-// import org.hibernate.Session;
-// import org.hibernate.SessionFactory;
-
-// public class CaptureRepository {
-
-//     private final SessionFactory sessionFactory;
-
-//     public CaptureRepository(SessionFactory sessionFactory) {
-//         this.sessionFactory = sessionFactory;
-//     }
-
-//     public Capture saveCapture(Capture capture) {
-//         try (Session session = sessionFactory.openSession()) {
-//             session.beginTransaction();
-//             session.persist(capture);
-//             session.getTransaction().commit();
-
-//         } catch (Exception e) {
-//             e.printStackTrace();
-//         }
-//     }
-// }
-
-
 package com.example.coapdemo;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 
+/**
+ * @brief The following class refers to the capture interface
+ * to the DB.
+ */
 public class CaptureRepository {
     private final SessionFactory sessionFactory;
     
@@ -37,17 +15,17 @@ public class CaptureRepository {
         this.sessionFactory = sessionFactory;
     }
     
+    /**
+     * @brief The following method saves a capture
+     * to the DB.
+     */
     public Capture saveCapture(Capture capture) {
         Transaction transaction = null;
+        
         try (Session session = sessionFactory.openSession()) {
             transaction = session.beginTransaction();
-            
-            // persist() will populate the auto-generated ID
-            session.persist(capture);
-            
+            session.persist(capture); // persist() will populate the auto-generated ID
             transaction.commit();
-            
-            // Return the capture entity with the populated ID
             return capture;
             
         } catch (Exception e) {
@@ -58,9 +36,4 @@ public class CaptureRepository {
             throw new RuntimeException("Failed to save capture", e);
         }
     }
-    
-    // // Keep the old method for backward compatibility if needed
-    // public void saveCapture(Capture capture) {
-    //     save(capture);
-    // }
 }
