@@ -36,6 +36,13 @@ public class BattResource extends CoapResource {
             Integer battHealth = received.get("health") != null ? received.get("health").AsInt32() : null;
             Integer respTime = received.get("latency") != null ? received.get("latency").AsInt32() : null;
 
+
+            //datetime
+            //nodeId
+            //level
+            //health
+            //latency
+
             if (nodeId == null || nodeId.isEmpty()) {
                 exchange.respond(CoAP.ResponseCode.BAD_REQUEST, "nodeId cannot be null or empty");
                 return;

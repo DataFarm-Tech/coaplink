@@ -3,8 +3,8 @@ package com.example.coapdemo;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "battery")
-public class Battery {
+@Table(name = "reading")
+public class Reading {
     
     @Id
     @Column(name = "capture_id")
@@ -14,21 +14,21 @@ public class Battery {
     @Column(name = "node_id", nullable = false, length = 6)
     private String nodeId;
     
-    @Column(name = "bat_lvl", nullable = false)
-    private Double batteryLevel;
+    @Column(name = "read_type", nullable = false)
+    private Double dataType;
     
-    @Column(name = "bat_hlth", nullable = false)
-    private Double batteryHealth;
+    @Column(name = "read_val", nullable = false)
+    private Double dataValue;
     
     // Default constructor
-    public Battery() {}
+    public Reading() {}
     
     // Constructor with parameters
-    public Battery(Long captureId, String nodeId, Double batteryLevel, Double batteryHealth) {
+    public Reading(Long captureId, String nodeId, Double dataType, Double dataValue) {
         this.captureId = captureId;
         this.nodeId = nodeId;
-        this.batteryLevel = batteryLevel;
-        this.batteryHealth = batteryHealth;
+        this.dataType = dataType;
+        this.dataValue = dataValue;
     }
     
     // Getters and setters
@@ -48,19 +48,19 @@ public class Battery {
         this.nodeId = nodeId;
     }
     
-    public Double getBatteryLevel() {
-        return batteryLevel;
+    public Double getDataType() {
+        return dataType;
     }
     
-    public void setBatteryLevel(Double batteryLevel) {
-        this.batteryLevel = batteryLevel;
+    public void setDataType(Double dataType) {
+        this.dataType = dataType;
     }
     
-    public Double getBatteryHealth() {
-        return batteryHealth;
+    public Double getDataValue() {
+        return dataValue;
     }
     
-    public void setBatteryHealth(Double batteryHealth) {
-        this.batteryHealth = batteryHealth;
+    public void setDataValue(Double dataValue) {
+        this.dataValue = dataValue;
     }
 }
