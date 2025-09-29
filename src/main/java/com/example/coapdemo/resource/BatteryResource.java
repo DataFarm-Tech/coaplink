@@ -15,58 +15,12 @@ public class BatteryResource extends CoapResource {
     
     private static final int THREAD_POOL_SIZE = 10;
     private static final ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
-    private final BatteryRepository batteryRepository;
-    private final CaptureRepository captureRepository;
+    private final BatteryService batteryService;
     
-    public BatteryResource(BatteryRepository batteryRepository, CaptureRepository captureRepository) {
+    public BatteryResource(BatteryService batteryService) {
         super("battery");
+        this.batteryService = batteryService;
         getAttributes().setTitle("Battery Resource");
-        this.batteryRepository = batteryRepository;
-        this.captureRepository = captureRepository;
-    }
-    
-    private boolean processBattery(CBORObject batteryElement, String nodeId, int index) {
-        Double battLvl;
-        Double battHlth;
-
-        battLvl = batteryElement.get("bat_lvl") != null ? batteryElement.get("bat_lvl").AsDouble() : null;
-        battHlth = batteryElement.get("bat_hlth") != null ? batteryElement.get("bat_hlth").AsDouble() : null;
-        
-        if (battLvl == null) {
-            System.err.println("Invalid battery level for battery " + index + ": null");
-            return false;
-        }
-        
-        if (battLvl < 0 || battLvl > 100) {
-            System.err.println("Invalid battery level for battery " + index + ": " + battLvl);
-            return false;
-        }
-        
-        if (battHlth == null) {
-            System.err.println("Invalid battery health for battery " + index + ": null");
-            return false;
-        }
-        
-        if (battHlth < 0 || battHlth > 100) {
-            System.err.println("Invalid battery health for battery " + index + ": " + battHlth);
-            return false;
-        }
-        
-        try {
-            
-            LocalDateTime timestamp = LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC);
-
-            Capture capture = new Capture(timestamp);
-            Capture savedCapture = captureRepository.saveCapture(capture);
-            Long captureId = savedCapture.getCaptureId();
-
-            Battery battery = new Battery(captureId, nodeId, battLvl, battHlth);
-            batteryRepository.saveBattery(battery);
-            return true;
-        } catch (Exception e) {
-            System.err.println("Error saving battery " + index + ": " + e.getMessage());
-            return false;
-        }
     }
 
     @Override
@@ -101,7 +55,7 @@ public class BatteryResource extends CoapResource {
                     }
                     
                     for (int i = 0; i < batteryArraySize; i++) {
-                        processBattery(batteriesArray.get(i), nodeId, i);
+                        batteryService.processBattery(batteriesArray.get(i), nodeId, i);
                     }
 
                 } catch (Exception e) {
