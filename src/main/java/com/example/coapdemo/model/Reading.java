@@ -1,6 +1,7 @@
 package com.example.coapdemo;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "reading")
@@ -14,21 +15,25 @@ public class Reading {
     @Column(name = "node_id", nullable = false, length = 6)
     private String nodeId;
     
-    @Column(name = "read_type", nullable = false)
-    private Double dataType;
+    @Column(name = "reading_type", nullable = false)
+    private String dataType;
     
-    @Column(name = "read_val", nullable = false)
+    @Column(name = "reading_val", nullable = false)
     private Double dataValue;
+
+    @Column(name = "timestamp", nullable = false)
+    private LocalDateTime timestamp;
     
     // Default constructor
     public Reading() {}
     
     // Constructor with parameters
-    public Reading(Long captureId, String nodeId, Double dataType, Double dataValue) {
+    public Reading(Long captureId, String nodeId, String dataType, Double dataValue, LocalDateTime timestamp) {
         this.captureId = captureId;
         this.nodeId = nodeId;
         this.dataType = dataType;
         this.dataValue = dataValue;
+        this.timestamp = timestamp;
     }
     
     // Getters and setters
@@ -48,11 +53,11 @@ public class Reading {
         this.nodeId = nodeId;
     }
     
-    public Double getDataType() {
+    public String getDataType() {
         return dataType;
     }
     
-    public void setDataType(Double dataType) {
+    public void setDataType(String dataType) {
         this.dataType = dataType;
     }
     
@@ -62,5 +67,13 @@ public class Reading {
     
     public void setDataValue(Double dataValue) {
         this.dataValue = dataValue;
+    }
+
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
+    
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
     }
 }

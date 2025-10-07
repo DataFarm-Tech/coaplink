@@ -46,6 +46,7 @@ public class HibernateUtil {
             // Register entity
             config.addAnnotatedClass(Battery.class);
             config.addAnnotatedClass(Capture.class);
+            config.addAnnotatedClass(Reading.class);
 
             return config.buildSessionFactory(
                 new StandardServiceRegistryBuilder().applySettings(config.getProperties()).build()
