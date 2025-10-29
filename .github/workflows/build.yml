@@ -2,7 +2,7 @@ name: Developer Branch Test
 
 on:
   push:
-    branches: ['*']
+    branches: ['feat/*']
 
 jobs:
   linting:
