@@ -14,10 +14,10 @@ public class Battery {
     @Column(name = "node_id", nullable = false, length = 6)
     private String nodeId;
     
-    @Column(name = "bat_lvl", nullable = false)
+    @Column(name = "level", nullable = false)
     private Double batteryLevel;
     
-    @Column(name = "bat_hlth", nullable = false)
+    @Column(name = "health", nullable = false)
     private Double batteryHealth;
     
     // Foreign key relationship to Capture entity

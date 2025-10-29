@@ -25,7 +25,8 @@ public class BatteryResource extends CoapResource {
 
     @Override
     public void handlePOST(CoapExchange exchange) {
-        byte[] payload = exchange.getRequestPayload();
+        System.out.println("new msg");
+	    byte[] payload = exchange.getRequestPayload();
         
         try {
             CBORObject received = CBORObject.DecodeFromBytes(payload);
