@@ -17,12 +17,8 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '25' # Update as needed
-
-      - name: Set up Maven
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y maven
-
+          cache: 'maven'
+      
       - name: Run Checkstyle and save output
         run: |
           mvn checkstyle:checkstyle || true
@@ -47,12 +43,8 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17' # Update as needed
-
-      - name: Set up Maven
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y maven
+          java-version: '25' # Update as needed
+          cache: 'maven'
 
       - name: Run mvn clean package
         run: mvn clean package
