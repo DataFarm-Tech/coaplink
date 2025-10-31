@@ -29,7 +29,7 @@ public class HibernateUtil {
             config.setProperty("hibernate.hikari.poolName", "MyHikariCP");
 
             // Hibernate behavior
-            config.setProperty("hibernate.hbm2ddl.auto", "update");
+            config.setProperty("hibernate.hbm2ddl.auto", "none");
             config.setProperty("hibernate.show_sql", "false");
             config.setProperty("hibernate.format_sql", "false");
 
@@ -44,7 +44,9 @@ public class HibernateUtil {
             config.setProperty("hibernate.cache.use_query_cache", "false");
 
             // Register entity
-            config.addAnnotatedClass(Batt.class);
+            config.addAnnotatedClass(Battery.class);
+            config.addAnnotatedClass(Capture.class);
+            config.addAnnotatedClass(Reading.class);
 
             return config.buildSessionFactory(
                 new StandardServiceRegistryBuilder().applySettings(config.getProperties()).build()

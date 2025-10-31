@@ -3,23 +3,29 @@ package com.example.coapdemo;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
-public class BattRepository {
+/**
+ * @brief The following class refers to the battery interface
+ * to the DB.
+ */
+public class BatteryRepository {
 
     private final SessionFactory sessionFactory;
 
-    public BattRepository(SessionFactory sessionFactory) {
+    public BatteryRepository(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
     }
-
-    public void saveBatt(Batt batt) {
+    
+    /**
+     * @brief The following method saves a battery
+     * entry in the DB.
+     */
+    public void saveBattery(Battery battery) {
         try (Session session = sessionFactory.openSession()) {
             session.beginTransaction();
-            session.persist(batt);
+            session.persist(battery);
             session.getTransaction().commit();
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("WRONG");
-            // handle exception or rethrow as needed
         }
     }
 }
