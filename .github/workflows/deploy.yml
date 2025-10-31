@@ -93,7 +93,8 @@ jobs:
 
             docker run -d \
             --name coap-link \
-            -p 5683:5683/udp \
+            --network host \
             datafarm/coap-link:development
+
 
             echo "Deployment completed successfully!"
