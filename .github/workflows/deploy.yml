@@ -92,14 +92,14 @@ jobs:
             docker pull ${{ secrets.DOCKER_LOGIN_USERNAME }}/coap-link:development
 
             # Run the container in detached mode
-            docker run -d \
-            -p 80:80 \
-            --name coap-link \
-            -e DB_USER="${{ secrets.DEV_DB_USER}}" \
-            -e DB_PASSWORD="${{ secrets.DEV_DB_PASSWORD}}" \
-            -e IPV4="${{ secrets.DEV_DB_HOST}}" \
-            -e PORT_NUMBER="${{ secrets.DEV_DB_PORT}}" \
-            -e DB_DATABASE="${{ secrets.DEV_DB_NAME}}" \
-            ${{ secrets.DOCKER_LOGIN_USERNAME }}/coap-link:development
+            #docker run -d \
+            #-p 80:80 \
+            #--name coap-link \
+            #-e DB_USER="${{ secrets.DEV_DB_USER}}" \
+            #-e DB_PASSWORD="${{ secrets.DEV_DB_PASSWORD}}" \
+            #-e IPV4="${{ secrets.DEV_DB_HOST}}" \
+            #-e PORT_NUMBER="${{ secrets.DEV_DB_PORT}}" \
+            #-e DB_DATABASE="${{ secrets.DEV_DB_NAME}}" \
+            #${{ secrets.DOCKER_LOGIN_USERNAME }}/coap-link:development
 
-            echo "Deployment completed successfully!"
+            #echo "Deployment completed successfully!"
