@@ -9,17 +9,10 @@ jobs:
   build-image:
     name: Build and Push Docker Image
     runs-on: ubuntu-latest
-    needs: generate-certs
-    
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-
-      - name: Download certificates
-        uses: actions/download-artifact@v4
-        with:
-          name: ssl-certs
-          path: keys/
 
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKER_LOGIN_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_LOGIN_USERNAME }}" --password-stdin
@@ -44,19 +37,22 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: 5823
           script: |
-            # Stop and remove any old containers if they exist
+            echo "Starting deployment..."
+
+            # Stop and remove any old containers
             docker stop coap-link || true
             docker rm coap-link || true
 
+            # Remove unused images
             docker image prune -f || true
 
             # Pull the latest image from Docker Hub
             docker pull datafarm/coap-link:development
 
+            # Run container with host networking for lowest latency
             docker run -d \
-            --name coap-link \
-            --network host \
-            datafarm/coap-link:development
+              --name coap-link \
+              --network host \
+              datafarm/coap-link:development
 
-
-            echo "Deployment completed successfully!"
+            echo "✅ Deployment completed successfully!"
