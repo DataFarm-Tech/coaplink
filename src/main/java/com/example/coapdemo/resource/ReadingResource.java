@@ -58,7 +58,7 @@ public class ReadingResource extends CoapResource {
                     }
                     
                     for (int i = 0; i < readingsArraySize; i++) {
-                        readingService.processReading(readingsArray.get(i), nodeId, i);
+                        readingService.processReading(readingsArray.get(i), nodeId);
                     }
 
                 } catch (Exception e) {

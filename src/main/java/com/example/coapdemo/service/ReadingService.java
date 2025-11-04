@@ -9,6 +9,8 @@ import java.time.ZoneOffset;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import com.upokecenter.cbor.CBORType;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ReadingService {
     private final ReadingRepository readingRepository;
@@ -18,28 +20,26 @@ public class ReadingService {
         this.readingRepository = readingRepository;
         this.captureRepository = captureRepository;
     }
-    
-    public void processReading(CBORObject readingElement, String nodeId, int index) {
-        Double temperature = readingElement.get("temperature") != null ? readingElement.get("temperature").AsDouble() : null;
-        Double pH = readingElement.get("ph") != null ? readingElement.get("ph").AsDouble() : null;
 
-        String[] readingTypes = {"temperature", "ph"};
-        Double[] readingValues = {temperature, pH};
+    public void processReading(CBORObject readingElement, String nodeId) {
+        Map<String, Double> readings = new HashMap<>();
+        readings.put("temperature", readingElement.get("temperature") != null ? readingElement.get("temperature").AsDouble() : null);
+        readings.put("ph", readingElement.get("ph") != null ? readingElement.get("ph").AsDouble() : null);
 
         try {
-            for (int i = 0; i < readingTypes.length; i++) {
-                if (readingValues[i] != null) {
+            for (Map.Entry<String, Double> entry : readings.entrySet()) {
+                if (entry.getValue() != null) {
                     LocalDateTime timestamp = LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC);
                     Capture capture = new Capture(timestamp);
                     Capture savedCapture = captureRepository.saveCapture(capture);
                     Long captureId = savedCapture.getCaptureId();
                     
-                    Reading reading = new Reading(captureId, nodeId, readingTypes[i], readingValues[i], timestamp);
+                    Reading reading = new Reading(captureId, nodeId, entry.getKey(), entry.getValue(), timestamp);
                     readingRepository.saveReading(reading);
                 }
             }
         } catch (Exception e) {
-            System.err.println("Error saving reading " + index + ": " + e.getMessage());
+            System.err.println("Error saving reading: " + e.getMessage());
         }
     }
 }
