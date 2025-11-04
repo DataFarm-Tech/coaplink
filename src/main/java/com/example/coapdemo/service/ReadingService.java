@@ -22,21 +22,24 @@ public class ReadingService {
     public void processReading(CBORObject readingElement, String nodeId, int index) {
         Double temperature = readingElement.get("temperature") != null ? readingElement.get("temperature").AsDouble() : null;
         Double pH = readingElement.get("ph") != null ? readingElement.get("ph").AsDouble() : null;
-        
+
+        String[] readingTypes = {"temperature", "ph"};
+        Double[] readingValues = {temperature, pH};
+
         try {
-            LocalDateTime timestamp = LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC);
-            Capture capture = new Capture(timestamp);
-            Capture savedCapture = captureRepository.saveCapture(capture);
-            Long captureId = savedCapture.getCaptureId();
-
-            Reading new_reading = new Reading(captureId, nodeId, "temperature", temperature, timestamp);
-
-
-            readingRepository.saveReading(new_reading);
-            return;
+            for (int i = 0; i < readingTypes.length; i++) {
+                if (readingValues[i] != null) {
+                    LocalDateTime timestamp = LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC);
+                    Capture capture = new Capture(timestamp);
+                    Capture savedCapture = captureRepository.saveCapture(capture);
+                    Long captureId = savedCapture.getCaptureId();
+                    
+                    Reading reading = new Reading(captureId, nodeId, readingTypes[i], readingValues[i], timestamp);
+                    readingRepository.saveReading(reading);
+                }
+            }
         } catch (Exception e) {
-            System.err.println("Error saving battery " + index + ": " + e.getMessage());
-            return;
+            System.err.println("Error saving reading " + index + ": " + e.getMessage());
         }
     }
 }
