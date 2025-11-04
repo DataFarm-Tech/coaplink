@@ -25,7 +25,6 @@ public class BatteryResource extends CoapResource {
 
     @Override
     public void handlePOST(CoapExchange exchange) {
-        System.out.println("new msg");
 	    byte[] payload = exchange.getRequestPayload();
         
         try {
