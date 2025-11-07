@@ -44,6 +44,8 @@ public class ReadingResource extends CoapResource {
                 exchange.respond(CoAP.ResponseCode.BAD_REQUEST, "readings array cannot be empty");
                 return;
             }
+
+            System.out.println(readingsArraySize);
             
             // Extract string only after validation passes
             String nodeId = nodeIdObj.AsString();
