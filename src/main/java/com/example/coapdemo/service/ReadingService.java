@@ -28,7 +28,7 @@ public class ReadingService {
         // This method is now just for compatibility - actual processing happens in processReadings
         System.out.println("Single reading processed (deprecated)");
     }
-    
+
     public void processReadings(CBORObject readingsArray, String nodeId) {
         try {
             // Collect all temperature and pH values
@@ -52,22 +52,26 @@ public class ReadingService {
             Double medianTemp = calculateMedian(temperatures);
             Double medianPh = calculateMedian(phValues);
             
-            // Create single capture timestamp for both medians
             LocalDateTime timestamp = LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC);
-            Capture capture = new Capture(timestamp);
-            Capture savedCapture = captureRepository.saveCapture(capture);
-            Long captureId = savedCapture.getCaptureId();
             
-            // Save median temperature
+            // Save median temperature with its own capture
             if (medianTemp != null) {
-                Reading tempReading = new Reading(captureId, nodeId, "temperature", medianTemp, timestamp);
+                Capture tempCapture = new Capture(timestamp);
+                Capture savedTempCapture = captureRepository.saveCapture(tempCapture);
+                Long tempCaptureId = savedTempCapture.getCaptureId();
+                
+                Reading tempReading = new Reading(tempCaptureId, nodeId, "temperature", medianTemp, timestamp);
                 readingRepository.saveReading(tempReading);
                 System.out.println("Saved median temperature for node " + nodeId + ": " + medianTemp);
             }
             
-            // Save median pH
+            // Save median pH with its own capture
             if (medianPh != null) {
-                Reading phReading = new Reading(captureId, nodeId, "ph", medianPh, timestamp);
+                Capture phCapture = new Capture(timestamp);
+                Capture savedPhCapture = captureRepository.saveCapture(phCapture);
+                Long phCaptureId = savedPhCapture.getCaptureId();
+                
+                Reading phReading = new Reading(phCaptureId, nodeId, "ph", medianPh, timestamp);
                 readingRepository.saveReading(phReading);
                 System.out.println("Saved median pH for node " + nodeId + ": " + medianPh);
             }
@@ -77,7 +81,7 @@ public class ReadingService {
             e.printStackTrace();
         }
     }
-    
+
     private Double calculateMedian(List<Double> values) {
         if (values == null || values.isEmpty()) {
             return null;
