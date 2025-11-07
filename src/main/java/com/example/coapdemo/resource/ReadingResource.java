@@ -61,7 +61,7 @@ public class ReadingResource extends CoapResource {
             executor.submit(() -> {
                 try {
                     for (int i = 0; i < readingsArraySize; i++) {
-                        readingService.processReading(readingsArray.get(i), nodeId);
+                        readingService.processReadings(readingsArray.get(i), nodeId);
                     }
                 } catch (Exception e) {
                     System.err.println("Error processing readings for node " + nodeId + ": " + e.getMessage());
