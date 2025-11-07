@@ -39,8 +39,8 @@ public class ReadingService {
             for (int i = 0; i < arraySize; i++) {
                 CBORObject reading = readingsArray.get(i);
                 
-                if (reading.get("temp") != null) {
-                    temperatures.add(reading.get("temp").AsDouble());
+                if (reading.get("temperature") != null) {
+                    temperatures.add(reading.get("temperature").AsDouble());
                 }
                 
                 if (reading.get("ph") != null) {
