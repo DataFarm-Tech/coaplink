@@ -1,5 +1,4 @@
 package com.example.coapdemo;
-
 import org.eclipse.californium.core.CoapResource;
 import org.eclipse.californium.core.server.resources.CoapExchange;
 import org.eclipse.californium.core.coap.CoAP;
@@ -22,7 +21,6 @@ public class ReadingResource extends CoapResource {
     @Override
     public void handlePOST(CoapExchange exchange) {
         byte[] payload = exchange.getRequestPayload();
-        
         try {
             CBORObject received = CBORObject.DecodeFromBytes(payload);
             
@@ -32,37 +30,35 @@ public class ReadingResource extends CoapResource {
                 exchange.respond(CoAP.ResponseCode.BAD_REQUEST, "nodeId is required");
                 return;
             }
-            
+
             CBORObject readingsArray = received.get("readings");
             if (readingsArray == null || readingsArray.getType() != CBORType.Array) {
                 exchange.respond(CoAP.ResponseCode.BAD_REQUEST, "readings array is required");
                 return;
             }
-            
+
             int readingsArraySize = readingsArray.size();
             if (readingsArraySize == 0) {
                 exchange.respond(CoAP.ResponseCode.BAD_REQUEST, "readings array cannot be empty");
                 return;
             }
 
-            System.out.println(readingsArraySize);
-            
+            System.out.println("Received " + readingsArraySize + " readings");
+
             // Extract string only after validation passes
             String nodeId = nodeIdObj.AsString();
             if (nodeId.isEmpty()) {
                 exchange.respond(CoAP.ResponseCode.BAD_REQUEST, "nodeId cannot be empty");
                 return;
             }
-            
+
             // Respond immediately
             exchange.respond(CoAP.ResponseCode.CHANGED);
-            
-            // Process asynchronously
+
+            // Process asynchronously - pass ENTIRE array once
             executor.submit(() -> {
                 try {
-                    for (int i = 0; i < readingsArraySize; i++) {
-                        readingService.processReadings(readingsArray.get(i), nodeId);
-                    }
+                    readingService.processReadings(readingsArray, nodeId);  // ← Pass entire array
                 } catch (Exception e) {
                     System.err.println("Error processing readings for node " + nodeId + ": " + e.getMessage());
                     e.printStackTrace();
