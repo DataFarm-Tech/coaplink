@@ -30,6 +30,8 @@ public class ReadingService {
     }
 
     public void processReadings(CBORObject readingsArray, String nodeId) {
+        
+        //TODO: Check that the node exists
         try {
             // Collect all temperature and pH values
             List<Double> temperatures = new ArrayList<>();

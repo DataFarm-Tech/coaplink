@@ -15,6 +15,7 @@ public class ActivateService {
     }
     
     public boolean processActivate(String nodeId, String gpsCoor) {
+    
         try {
             LocalDateTime timestamp = LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC);
             Capture capture = new Capture(timestamp);
