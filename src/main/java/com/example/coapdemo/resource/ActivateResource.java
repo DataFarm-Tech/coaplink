@@ -23,7 +23,7 @@ public class ActivateResource extends CoapResource {
     @Override
     public void handlePOST(CoapExchange exchange) {
         byte[] payload = exchange.getRequestPayload();
-        
+
         try {
             CBORObject received = CBORObject.DecodeFromBytes(payload);
 
@@ -33,17 +33,21 @@ public class ActivateResource extends CoapResource {
                 return;
             }
 
-            // Fixed typo: .AsString → .AsString()
             String gpsCoor = received.get("gps") != null ? received.get("gps").AsString() : null;
             if (gpsCoor == null || gpsCoor.isEmpty()) {
                 exchange.respond(CoAP.ResponseCode.BAD_REQUEST, "gps cannot be null or empty");
                 return;
             }
 
+            // Respond immediately
             exchange.respond(CoAP.ResponseCode.CHANGED);
 
+            // Process the activation asynchronously
             executor.submit(() -> {
-                activateService.processActivate(nodeId, gpsCoor);
+                boolean success = activateService.processActivate(nodeId, gpsCoor);
+                if (!success) {
+                    System.out.println("Node " + nodeId + " already exists, skipping activation.");
+                }
             });
 
         } catch (Exception e) {

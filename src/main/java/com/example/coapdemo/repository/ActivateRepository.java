@@ -3,10 +3,6 @@ package com.example.coapdemo;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
-/**
- * @brief The following class refers to the battery interface
- * to the DB.
- */
 public class ActivateRepository {
 
     private final SessionFactory sessionFactory;
@@ -14,17 +10,29 @@ public class ActivateRepository {
     public ActivateRepository(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
     }
-    
+
     /**
-     * @brief Saves an ActiveNode entry in the DB.
+     * Save node to DB.
      */
-    public void saveActivate(ActiveNode nodeToActivate) {
+    public void saveActivate(ActiveNode node) {
         try (Session session = sessionFactory.openSession()) {
             session.beginTransaction();
-            session.persist(nodeToActivate);
+            session.persist(node);
             session.getTransaction().commit();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * Get node by nodeId.
+     */
+    public ActiveNode getNodeByNodeId(String nodeId) {
+        try (Session session = sessionFactory.openSession()) {
+            return session.get(ActiveNode.class, nodeId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 }
