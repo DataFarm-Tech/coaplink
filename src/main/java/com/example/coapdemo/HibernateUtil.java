@@ -47,6 +47,7 @@ public class HibernateUtil {
             config.addAnnotatedClass(Battery.class);
             config.addAnnotatedClass(Capture.class);
             config.addAnnotatedClass(Reading.class);
+            config.addAnnotatedClass(ActiveNode.class);
 
             return config.buildSessionFactory(
                 new StandardServiceRegistryBuilder().applySettings(config.getProperties()).build()
