@@ -14,31 +14,22 @@ public class ActivateService {
         this.captureRepository = captureRepository;
     }
 
-    /**
-     * Process an activation request.
-     * Only saves node if it does not already exist.
-     */
     public boolean processActivate(String nodeId, String gpsCoor) {
         try {
-            
             // Check if node already exists
             ActiveNode existingNode = activateRepository.getNodeByNodeId(nodeId);
             if (existingNode != null) {
-                System.out.println("Node already exists: " + nodeId);
-                return false;
+                return false; // Node already activated
             }
-            
-            // Create a new capture
+
             LocalDateTime timestamp = LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC);
             Capture capture = new Capture(timestamp);
             Capture savedCapture = captureRepository.saveCapture(capture);
             Long captureId = savedCapture.getCaptureId();
-            
-            // Node does not exist, save it
+
             ActiveNode nodeToActivate = new ActiveNode(captureId, nodeId, gpsCoor);
             activateRepository.saveActivate(nodeToActivate);
             System.out.println("Node added: " + nodeId);
-
             return true;
 
         } catch (Exception e) {

@@ -11,7 +11,6 @@ public class ActivateResource extends CoapResource {
 
     private static final int THREAD_POOL_SIZE = 10;
     private static final ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
-
     private final ActivateService activateService;
 
     public ActivateResource(ActivateService activateService) {
@@ -42,7 +41,7 @@ public class ActivateResource extends CoapResource {
             // Respond immediately
             exchange.respond(CoAP.ResponseCode.CHANGED);
 
-            // Process the activation asynchronously
+            // Process asynchronously
             executor.submit(() -> {
                 boolean success = activateService.processActivate(nodeId, gpsCoor);
                 if (!success) {
