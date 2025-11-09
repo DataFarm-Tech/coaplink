@@ -38,12 +38,19 @@ public class ActivateResource extends CoapResource {
                 return;
             }
 
+            // CBOR "key" is a byte string on ESP32
+            byte[] key = received.get("key") != null ? received.get("key").GetByteString() : null;
+            if (key == null || key.length == 0) {
+                exchange.respond(CoAP.ResponseCode.BAD_REQUEST, "invalid key");
+                return;
+            }
+
             // Respond immediately
             exchange.respond(CoAP.ResponseCode.CHANGED);
 
             // Process asynchronously
             executor.submit(() -> {
-                boolean success = activateService.processActivate(nodeId, gpsCoor);
+                boolean success = activateService.processActivate(nodeId, gpsCoor, key);
                 if (!success) {
                     System.out.println("Node " + nodeId + " already exists, skipping activation.");
                 }
