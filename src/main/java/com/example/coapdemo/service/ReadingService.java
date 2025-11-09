@@ -31,7 +31,6 @@ public class ReadingService {
 
     public void processReadings(CBORObject readingsArray, String nodeId) {
         
-        //TODO: Check that the node exists
         try {
             // Collect all temperature and pH values
             List<Double> temperatures = new ArrayList<>();
@@ -41,12 +40,16 @@ public class ReadingService {
             for (int i = 0; i < arraySize; i++) {
                 CBORObject reading = readingsArray.get(i);
                 
-                if (reading.get("temperature") != null) {
-                    temperatures.add(reading.get("temperature").AsDouble());
+                Double temp = reading.get("temperature").AsDouble();
+
+                if (temp != null && (temp < 0 || temp > 100)) {
+                    temperatures.add(temp);
                 }
-                
-                if (reading.get("ph") != null) {
-                    phValues.add(reading.get("ph").AsDouble());
+
+                Double ph = reading.get("ph").AsDouble();
+
+                if (ph != null && (ph < 0 || ph > 13)) {
+                    phValues.add(ph); //TODO: double cbeck this
                 }
             }
             

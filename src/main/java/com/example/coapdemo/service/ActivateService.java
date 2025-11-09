@@ -16,11 +16,16 @@ public class ActivateService {
 
     public boolean processActivate(String nodeId, String gpsCoor) {
         try {
-            // Check if node already exists
+            // Check if node already activated
             ActiveNode existingNode = activateRepository.getNodeByNodeId(nodeId);
             if (existingNode != null) {
-                return false; // Node already activated
+                return false;
             }
+
+            /**
+             * TODO: Check hash passed into the packet.
+             * Validate that this is a known device.
+             */
 
             LocalDateTime timestamp = LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC);
             Capture capture = new Capture(timestamp);
