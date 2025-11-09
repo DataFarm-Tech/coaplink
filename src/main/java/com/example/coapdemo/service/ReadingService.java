@@ -1,4 +1,5 @@
 package com.example.coapdemo;
+
 import org.eclipse.californium.core.CoapResource;
 import org.eclipse.californium.core.server.resources.CoapExchange;
 import org.eclipse.californium.core.coap.CoAP;
@@ -14,6 +15,7 @@ import java.util.Map;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 public class ReadingService {
     private final ReadingRepository readingRepository;
@@ -24,84 +26,91 @@ public class ReadingService {
         this.captureRepository = captureRepository;
     }
 
-    public void processReading(CBORObject readingElement, String nodeId) {
-        // This method is now just for compatibility - actual processing happens in processReadings
-        System.out.println("Single reading processed (deprecated)");
-    }
-
     public void processReadings(CBORObject readingsArray, String nodeId) {
-        
-        try {
-            // Collect all temperature and pH values
-            List<Double> temperatures = new ArrayList<>();
-            List<Double> phValues = new ArrayList<>();
-            
-            int arraySize = readingsArray.size();
-            for (int i = 0; i < arraySize; i++) {
-                CBORObject reading = readingsArray.get(i);
-                
-                Double temp = reading.get("temperature").AsDouble();
+    try {
+        List<Double> temperatures = new ArrayList<>();
+        List<Double> phValues = new ArrayList<>();
 
-                if (temp != null && temp >= 0 && temp <= 100) {
-                    temperatures.add(temp);
-                }
+        // Collect valid readings
+        int arraySize = readingsArray.size();
+        for (int i = 0; i < arraySize; i++) {
+            CBORObject reading = readingsArray.get(i);
 
-                Double ph = reading.get("ph").AsDouble();
+            Double temp = reading.get("temperature").AsDouble();
+            if (temp != null && temp >= 0 && temp <= 100) {
+                temperatures.add(temp);
+            }
 
-                if (ph != null && ph >= 0 && ph <= 13) {
-                    phValues.add(ph);
-                }
+            Double ph = reading.get("ph").AsDouble();
+            if (ph != null && ph >= 0 && ph <= 13) {
+                phValues.add(ph);
             }
-            
-            // Calculate medians
-            Double medianTemp = calculateMedian(temperatures);
-            Double medianPh = calculateMedian(phValues);
-            
-            LocalDateTime timestamp = LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC);
-            
-            // Save median temperature with its own capture
-            if (medianTemp != null) {
-                Capture tempCapture = new Capture(timestamp);
-                Capture savedTempCapture = captureRepository.saveCapture(tempCapture);
-                Long tempCaptureId = savedTempCapture.getCaptureId();
-                
-                Reading tempReading = new Reading(tempCaptureId, nodeId, "temperature", medianTemp, timestamp);
-                readingRepository.saveReading(tempReading);
-                System.out.println("Saved median temperature for node " + nodeId + ": " + medianTemp);
-            }
-            
-            // Save median pH with its own capture
-            if (medianPh != null) {
-                Capture phCapture = new Capture(timestamp);
-                Capture savedPhCapture = captureRepository.saveCapture(phCapture);
-                Long phCaptureId = savedPhCapture.getCaptureId();
-                
-                Reading phReading = new Reading(phCaptureId, nodeId, "ph", medianPh, timestamp);
-                readingRepository.saveReading(phReading);
-                System.out.println("Saved median pH for node " + nodeId + ": " + medianPh);
-            }
-            
-        } catch (Exception e) {
-            System.err.println("Error processing readings: " + e.getMessage());
-            e.printStackTrace();
         }
+
+        // Z-score filtering and median calculation for temperature
+        DescriptiveStatistics tempStats = new DescriptiveStatistics();
+        temperatures.forEach(tempStats::addValue);
+        double meanTemp = tempStats.getMean();
+        double stdDevTemp = tempStats.getStandardDeviation();
+
+        List<Double> filteredTemps = new ArrayList<>();
+        for (Double t : temperatures) {
+            if (stdDevTemp == 0 || Math.abs((t - meanTemp) / stdDevTemp) <= 2.0) { // threshold = 2.0
+                filteredTemps.add(t);
+            }
+        }
+
+        double medianTemp = 0;
+        if (!filteredTemps.isEmpty()) {
+            DescriptiveStatistics filteredTempStats = new DescriptiveStatistics();
+            filteredTemps.forEach(filteredTempStats::addValue);
+            medianTemp = filteredTempStats.getPercentile(50);
+        }
+
+        // Z-score filtering and median calculation for pH
+        DescriptiveStatistics phStats = new DescriptiveStatistics();
+        phValues.forEach(phStats::addValue);
+        double meanPh = phStats.getMean();
+        double stdDevPh = phStats.getStandardDeviation();
+
+        List<Double> filteredPh = new ArrayList<>();
+        for (Double p : phValues) {
+            if (stdDevPh == 0 || Math.abs((p - meanPh) / stdDevPh) <= 2.0) {
+                filteredPh.add(p);
+            }
+        }
+
+        double medianPh = 0;
+        if (!filteredPh.isEmpty()) {
+            DescriptiveStatistics filteredPhStats = new DescriptiveStatistics();
+            filteredPh.forEach(filteredPhStats::addValue);
+            medianPh = filteredPhStats.getPercentile(50);
+        }
+
+        // Save median temperature
+        LocalDateTime timestamp = LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC);
+
+        if (!filteredTemps.isEmpty()) {
+            Capture tempCapture = new Capture(timestamp);
+            Capture savedTempCapture = captureRepository.saveCapture(tempCapture);
+            Long tempCaptureId = savedTempCapture.getCaptureId();
+
+            Reading tempReading = new Reading(tempCaptureId, nodeId, "temperature", medianTemp, timestamp);
+            readingRepository.saveReading(tempReading);
+        }
+
+        // Save median pH
+        if (!filteredPh.isEmpty()) {
+            Capture phCapture = new Capture(timestamp);
+            Capture savedPhCapture = captureRepository.saveCapture(phCapture);
+            Long phCaptureId = savedPhCapture.getCaptureId();
+
+            Reading phReading = new Reading(phCaptureId, nodeId, "ph", medianPh, timestamp);
+            readingRepository.saveReading(phReading);
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
     }
-
-    private Double calculateMedian(List<Double> values) {
-        if (values == null || values.isEmpty()) {
-            return null;
-        }
-        
-        // Sort the values
-        Collections.sort(values);
-        
-        int size = values.size();
-        if (size % 2 == 0) {
-            // Even number - average the two middle values
-            return (values.get(size / 2 - 1) + values.get(size / 2)) / 2.0;
-        } else {
-            // Odd number - return the middle value
-            return values.get(size / 2);
-        }
-    }
+}
 }
