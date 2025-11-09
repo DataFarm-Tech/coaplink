@@ -41,6 +41,7 @@ public class ReadingService {
                 CBORObject reading = readingsArray.get(i);
                 
                 Double temp = reading.get("temperature").AsDouble();
+                System.out.println(temp);
 
                 if (temp != null && (temp < 0 || temp > 100)) {
                     temperatures.add(temp);
