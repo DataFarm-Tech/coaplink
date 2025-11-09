@@ -41,16 +41,15 @@ public class ReadingService {
                 CBORObject reading = readingsArray.get(i);
                 
                 Double temp = reading.get("temperature").AsDouble();
-                System.out.println(temp);
 
-                if (temp != null && (temp < 0 || temp > 100)) {
+                if (temp != null && temp >= 0 && temp <= 100) {
                     temperatures.add(temp);
                 }
 
                 Double ph = reading.get("ph").AsDouble();
 
-                if (ph != null && (ph < 0 || ph > 13)) {
-                    phValues.add(ph); //TODO: double cbeck this
+                if (ph != null && ph >= 0 && ph <= 13) {
+                    phValues.add(ph);
                 }
             }
             
