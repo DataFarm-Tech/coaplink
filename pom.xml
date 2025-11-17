@@ -35,8 +35,9 @@
     <version>6.4.4.Final</version>
 </dependency>
 
+<!-- https://mvnrepository.com/artifact/commons-validator/commons-validator -->
 <dependency>
-    <groupId>org.apache.commons</groupId>
+    <groupId>commons-validator</groupId>
     <artifactId>commons-validator</artifactId>
     <version>1.7</version>
 </dependency>

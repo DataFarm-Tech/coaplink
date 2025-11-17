@@ -8,11 +8,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.apache.commons.validator.routines.DoubleValidator;
 
-
 public class ActivateResource extends CoapResource {
 
     private static final int THREAD_POOL_SIZE = 10;
     private static final ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
+    private static final DoubleValidator doubleValidator = DoubleValidator.getInstance();
+
     private final ActivateService activateService;
 
     public ActivateResource(ActivateService activateService) {
@@ -28,35 +29,39 @@ public class ActivateResource extends CoapResource {
         try {
             CBORObject received = CBORObject.DecodeFromBytes(payload);
 
-            String nodeId = received.get("node_id") != null ? received.get("node_id").AsString() : null;
-            if (nodeId == null || nodeId.isEmpty() || (nodeID.length != 6)) {
-                exchange.respond(CoAP.ResponseCode.BAD_REQUEST, "nodeId cannot be null or empty");
+            String nodeId = received.get("node_id") != null ? 
+                received.get("node_id").AsString() : null;
+
+            // Fix: nodeID → nodeId, and use .length()
+            if (nodeId == null || nodeId.isEmpty() || nodeId.length() != 6) {
+                exchange.respond(CoAP.ResponseCode.BAD_REQUEST, "nodeId must be 6 digits");
                 return;
             }
 
-            String gpsCoor = received.get("gps") != null ? received.get("gps").AsString() : null;
+            String gpsCoor = received.get("gps") != null ? 
+                received.get("gps").AsString() : null;
+
             if (gpsCoor == null || gpsCoor.isEmpty()) {
                 exchange.respond(CoAP.ResponseCode.BAD_REQUEST, "gps cannot be null or empty");
                 return;
             }
 
             if (!isValidGps(gpsCoor)) {
-                exchange.respond(CoAP.ResponseCode.BAD_REQUEST, 
+                exchange.respond(CoAP.ResponseCode.BAD_REQUEST,
                     "Invalid GPS coordinates. Expected \"lat,lon\" with valid ranges.");
                 return;
             }
 
-            // CBOR "key" is a byte string on ESP32
-            byte[] key = received.get("key") != null ? received.get("key").GetByteString() : null;
+            byte[] key = received.get("key") != null ?
+                received.get("key").GetByteString() : null;
+
             if (key == null || key.length == 0) {
                 exchange.respond(CoAP.ResponseCode.BAD_REQUEST, "invalid key");
                 return;
             }
 
-            // Respond immediately
             exchange.respond(CoAP.ResponseCode.CHANGED);
 
-            // Process asynchronously
             executor.submit(() -> {
                 boolean success = activateService.processActivate(nodeId, gpsCoor, key);
                 if (!success) {
@@ -73,21 +78,20 @@ public class ActivateResource extends CoapResource {
     public void shutdown() {
         executor.shutdown();
     }
-}
 
+    // ---- FIX: inside the class ----
 
-private static final DoubleValidator doubleValidator = DoubleValidator.getInstance();
+    private boolean isValidGps(String gps) {
+        String[] parts = gps.split(",");
+        if (parts.length != 2) return false;
 
-private boolean isValidGps(String gps) {
-    String[] parts = gps.split(",");
-    if (parts.length != 2) return false;
+        Double lat = doubleValidator.validate(parts[0].trim());
+        Double lon = doubleValidator.validate(parts[1].trim());
 
-    Double lat = doubleValidator.validate(parts[0].trim());
-    Double lon = doubleValidator.validate(parts[1].trim());
+        if (lat == null || lon == null) {
+            return false;
+        }
 
-    if (lat == null || lon == null) {
-        return false;
+        return lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180;
     }
-
-    return lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180;
 }
