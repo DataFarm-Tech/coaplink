@@ -16,7 +16,7 @@ public class HibernateUtil {
 
             // JDBC and DB configuration
             config.setProperty("hibernate.connection.driver_class", "com.mysql.cj.jdbc.Driver");
-            config.setProperty("hibernate.connection.url", "jdbc:mysql://45.79.239.100:3306/df_dev");
+            config.setProperty("hibernate.connection.url", "jdbc:mysql://45.79.239.100:3306/df_dev_2");
             config.setProperty("hibernate.connection.username", "root");
             config.setProperty("hibernate.connection.password", "RYy3GziqsVPPeP7abMzHZfSDj7DDKAX4vVMMfo");
             config.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
