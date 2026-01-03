@@ -25,7 +25,7 @@ public class ActivateResource extends CoapResource {
 
         try {
             CBORObject received = CBORObject.DecodeFromBytes(payload);
-
+            System.out.println("HELLOWORLD");
             String nodeId = received.get("node_id") != null ? received.get("node_id").AsString() : null;
             if (nodeId == null || nodeId.isEmpty()) {
                 exchange.respond(CoAP.ResponseCode.BAD_REQUEST, "nodeId cannot be null or empty");
